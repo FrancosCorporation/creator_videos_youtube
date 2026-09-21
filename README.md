@@ -1,5 +1,9 @@
 # creator_videos_youtube
 
+## ℹ️ Sobre este repositório
+
+Ferramentas para criadores de vídeo.
+
 Scripts de exemplo que consomem a **YouTube Data API v3**: listagem dos
 vídeos mais populares por **API key** e por **OAuth 2.0**.
 
