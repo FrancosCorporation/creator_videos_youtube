@@ -22,7 +22,7 @@ def main():
 
     api_service_name = "youtube"
     api_version = "v3"
-    client_secrets_file = "client_secret_235022272855-3cdertqp2u36ral5ipgfiv3lbr07hn9f.apps.googleusercontent.com.json"
+    client_secrets_file = os.environ.get("YOUTUBE_CLIENT_SECRETS_FILE", "client_secret.json")
 
     # Get credentials and create an API client
     flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
