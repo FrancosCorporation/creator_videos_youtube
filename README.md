@@ -1,53 +1,83 @@
-# creator_videos_youtube
+# Ferramentas para criadores de vídeo
 
-## ℹ️ Sobre este repositório
+Exemplos pequenos de integração com a YouTube Data API v3. Os dois comandos
+listam até dez vídeos populares e exibem título, canal e link:
 
-Ferramentas para criadores de vídeo.
+- `Main_api.py` usa uma chave de API para consultar dados públicos.
+- `Main_json.py` usa OAuth 2.0 para aplicativo desktop, abrindo o navegador e
+  pedindo acesso somente de leitura ao canal.
 
-Scripts de exemplo que consomem a **YouTube Data API v3**: listagem dos
-vídeos mais populares por **API key** e por **OAuth 2.0**.
+O gráfico `mostPopular` pode ser limitado por região ou categoria; este exemplo
+usa a consulta padrão da API.
 
-![Python](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)
-![YouTube API](https://img.shields.io/badge/YouTube%20Data%20API-v3-FF0000?style=flat-square&logo=youtube&logoColor=white)
-![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
-![Status](https://img.shields.io/badge/status-estudo-lightgrey?style=flat-square)
+## Requisitos e instalação
 
-## Sobre
-
-**Projeto de estudo** de 2022 criado para praticar integração com APIs do
-Google. São dois pontos de entrada independentes:
-
-- `Main_api.py` — autentica com **API key** e lista os vídeos mais populares
-  (`videos().list`, `chart=mostPopular`).
-- `Main_json.py` — fluxo **OAuth 2.0** (`InstalledAppFlow`) usando um arquivo
-  de credenciais do Google Cloud, com escopos de leitura/gestão do canal.
-
-## Como rodar
+- Python 3.10 ou superior.
+- Uma chave de API ou um cliente OAuth Desktop criado no Google Cloud.
 
 ```bash
-pip install google-api-python-client google-auth-oauthlib
+git clone https://github.com/FrancosCorporation/creator_videos_youtube.git
+cd creator_videos_youtube
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+cp .env.example .env
+${EDITOR:-nano} .env
+set -a
+. ./.env
+set +a
 ```
 
-1. Crie um projeto no [Google Cloud Console](https://console.cloud.google.com/),
-   ative a **YouTube Data API v3**.
-2. Copie `.env.example` para `.env` e preencha:
+O script não carrega `.env` automaticamente. Os comandos acima exportam as
+variáveis para o processo; no Windows, configure as mesmas variáveis na sessão
+do PowerShell antes de executar o Python.
+
+## Configurar o Google Cloud
+
+1. Crie ou selecione um projeto no [Google Cloud Console](https://console.cloud.google.com/).
+2. Habilite a **YouTube Data API v3**.
+3. Para `Main_api.py`, crie uma chave de API e preencha `YOUTUBE_API_KEY` no
+   `.env`. Restrinja a chave à YouTube Data API v3 no Console.
+4. Para `Main_json.py`, crie um OAuth Client ID do tipo **Desktop app**, baixe o
+   JSON para `client_secret.json` na raiz e mantenha-o privado. Se o arquivo
+   estiver em outro lugar, ajuste `YOUTUBE_CLIENT_SECRETS_FILE` no `.env`.
+
+O `.gitignore` exclui `.env` e arquivos `client_secret*.json`. Nunca versione
+credenciais. As credenciais antigas mencionadas no histórico do repositório
+devem ser revogadas no Google Cloud.
+
+## Executar
+
+Com o ambiente virtual ativo e as variáveis carregadas:
 
 ```bash
-YOUTUBE_API_KEY=sua_api_key
-YOUTUBE_CLIENT_SECRETS_FILE=client_secret.json
+python Main_api.py
+python Main_json.py
 ```
 
-3. Baixe o `client_secret.json` do seu projeto (OAuth Client ID do tipo
-   "Desktop") e salve na raiz — o arquivo **não** é versionado.
-4. Execute:
+No fluxo OAuth, o Google abre o navegador e redireciona a autorização para um
+servidor temporário em `127.0.0.1`. Use uma sessão local com navegador; ao rodar
+por SSH ou em servidor sem navegador, prefira `Main_api.py` ou configure um
+ambiente desktop acessível.
+
+O OAuth solicita apenas `youtube.readonly`. A autorização não é salva em disco,
+então o navegador pode ser aberto novamente em cada execução de `Main_json.py`.
+O exemplo consulta dados públicos e não publica, edita ou remove vídeos.
+
+Se a chave estiver vazia ou o JSON OAuth faltar, o programa informa como
+corrigir a configuração. Erros de cota e credenciais da API também recebem uma
+mensagem curta com o próximo passo.
+
+## Verificações estáticas
 
 ```bash
-python Main_api.py    # fluxo por API key
-python Main_json.py   # fluxo OAuth (abre o navegador)
+python -m pip install -r requirements-dev.txt
+python -m py_compile Main_api.py Main_json.py common.py
+ruff check Main_api.py Main_json.py common.py
 ```
 
-> As credenciais que existiam neste repositório foram removidas do código.
-> Se você chegou a usar a chave antiga, **revogue-a** no Google Cloud Console.
+O CI executa as mesmas verificações. O projeto ainda não tem testes
+automatizados.
 
 ## Licença
 
