@@ -72,7 +72,7 @@ Os scripts agora compartilham configuração, tratamento de erros e exibição d
 - **Mudança:** substituir controles C0/C1 e controles de direção por espaços, usar texto de fallback quando o resultado ficar vazio e só gerar links para IDs de vídeo com 11 caracteres válidos.
 - **Aceite:** texto remoto não consegue emitir sequências de controle no terminal e um ID malformado não vira link.
 - **Estado:** implementado nesta reauditoria.
-- **Verificação estática:** `ruff check Main_api.py Main_json.py common.py` e `git diff --check`; resposta remota não foi simulada nesta rodada.
+- **Verificação:** sintaxe e Ruff passaram localmente em Python 3.14; [CI](https://github.com/FrancosCorporation/creator_videos_youtube/actions/runs/38193332541) passou em Python 3.11 e 3.14. Resposta remota não foi simulada nesta rodada.
 
 ---
 
@@ -134,7 +134,7 @@ Os scripts agora compartilham configuração, tratamento de erros e exibição d
 - **Evidência:** Python 3.10 encerrou o suporte em 1º de outubro de 2026; o README ainda prometia compatibilidade e o CI só verificava Python 3.14.
 - **Mudança:** elevar o mínimo documentado e o alvo do Ruff para Python 3.11; fixar o runner em Ubuntu 24.04 e executar as verificações em Python 3.11 e 3.14.
 - **Aceite:** o requisito declarado tem suporte de segurança ativo e ambos os extremos da matriz são verificados no CI.
-- **Estado:** implementado nesta reauditoria. O CI remoto desta alteração será registrado após o push.
+- **Estado:** implementado e publicado no commit `fd39e2d`; CI passou em Python 3.11 e 3.14 ([execução](https://github.com/FrancosCorporation/creator_videos_youtube/actions/runs/38193332541)).
 
 ### IMP-01 · Boilerplate duplicado · [P3]
 
@@ -205,4 +205,4 @@ git diff --check
 
 ---
 
-*Atualizado em 2026-10-11. TEST-01 e a autorização OAuth real permanecem sem validação nesta rodada.*
+*Atualizado em 2026-10-11. Validação local em Python 3.14 e CI em Python 3.11/3.14 passaram. TEST-01 e autorização OAuth real permanecem sem validação nesta rodada.*
