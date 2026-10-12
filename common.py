@@ -1,6 +1,7 @@
 """Configuração e operações compartilhadas dos exemplos da YouTube API."""
 
 import os
+import re
 from pathlib import Path
 
 import httplib2
@@ -13,6 +14,10 @@ from oauthlib.oauth2.rfc6749.errors import OAuth2Error
 API_SERVICE_NAME = "youtube"
 API_VERSION = "v3"
 OAUTH_SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"]
+TERMINAL_CONTROL_CHARACTERS = re.compile(
+    r"[\x00-\x1f\x7f-\x9f\u061c\u200e\u200f\u202a-\u202e\u2066-\u2069]"
+)
+YOUTUBE_VIDEO_ID = re.compile(r"[A-Za-z0-9_-]{11}")
 
 
 class UserFacingError(Exception):
@@ -126,15 +131,28 @@ def print_videos(videos):
         return
 
     for index, video in enumerate(videos, start=1):
-        snippet = video.get("snippet", {})
-        title = snippet.get("title", "Título indisponível").replace("\n", " ")
-        channel = snippet.get("channelTitle", "Canal indisponível")
+        if not isinstance(video, dict):
+            continue
+        snippet = video.get("snippet")
+        if not isinstance(snippet, dict):
+            snippet = {}
+        title = safe_terminal_text(snippet.get("title"), "Título indisponível")
+        channel = safe_terminal_text(
+            snippet.get("channelTitle"), "Canal indisponível"
+        )
         video_id = video.get("id")
 
         print(f"{index}. {title}")
         print(f"   Canal: {channel}")
-        if isinstance(video_id, str) and video_id:
+        if isinstance(video_id, str) and YOUTUBE_VIDEO_ID.fullmatch(video_id):
             print(f"   https://www.youtube.com/watch?v={video_id}")
+
+
+def safe_terminal_text(value, fallback):
+    if not isinstance(value, str):
+        return fallback
+    cleaned = TERMINAL_CONTROL_CHARACTERS.sub(" ", value).strip()
+    return cleaned or fallback
 
 
 def run_cli(authentication_mode):

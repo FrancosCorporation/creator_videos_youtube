@@ -12,7 +12,7 @@ usa a consulta padrão da API.
 
 ## Requisitos e instalação
 
-- Python 3.10 ou superior.
+- Python 3.11 ou superior. Python 3.10 chegou ao fim do suporte em outubro de 2026.
 - Uma chave de API ou um cliente OAuth Desktop criado no Google Cloud.
 
 ```bash
@@ -76,8 +76,8 @@ python -m py_compile Main_api.py Main_json.py common.py
 ruff check Main_api.py Main_json.py common.py
 ```
 
-O CI executa as mesmas verificações. O projeto ainda não tem testes
-automatizados.
+O CI executa sintaxe e lint em Python 3.11 e 3.14. O projeto ainda não tem
+testes automatizados.
 
 ## Licença
 

@@ -1,6 +1,6 @@
 # MELHORIAS — creator_videos_youtube
 
-> **Análise inicial:** 2026-10-05 · **Atualizado:** 2026-10-11 · Python 3.10+ e YouTube Data API v3
+> **Análise inicial:** 2026-10-05 · **Atualizado:** 2026-10-11 · Python 3.11+ e YouTube Data API v3
 > Branch `master` · `Main_api.py`/`Main_json.py` compartilham `common.py` · CI estático · TEST-01 pendente
 >
 > Plano de execução com evidência, mudança e verificação para cada item.
@@ -44,7 +44,9 @@ Os scripts agora compartilham configuração, tratamento de erros e exibição d
 | BUG-01 | OAuth fora de banda substituído por fluxo Desktop loopback | **P0** | `common.py` | Implementado; autorização real requer credenciais locais |
 | BUG-02 | Validar API key e arquivo OAuth antes do uso | **P0** | `common.py` | Implementado |
 | SEC-01 | Fixar dependências Google | **P1** | `requirements.txt` | Implementado |
+| SEC-02 | Metadados remotos podem incluir controles de terminal | **P2** | `common.py` | Implementado nesta reauditoria |
 | BUG-03 | Tratar falhas de API e rede | **P1** | `common.py` | Implementado |
+| DEVOPS-02 | Python 3.10 fora de suporte no requisito e CI | **P1** | README, pyproject, workflow | Implementado nesta reauditoria |
 | TEST-01 | Cobrir configuração e chamadas sem rede | **P2** | *(ausente)* | Pendente |
 | DEVOPS-01 | CI com sintaxe e lint | **P2** | `.github/workflows/ci.yml` | Implementado |
 | DOC-01 | Documentar instalação e comportamento real | **P2** | `README.md` | Implementado |
@@ -62,6 +64,15 @@ Os scripts agora compartilham configuração, tratamento de erros e exibição d
 - **Aceite:** instalação reproduzível com requisitos de runtime e de desenvolvimento.
 - **Estado:** implementado; versões publicadas conferidas em 11/10/2026.
 - **Verificação:** `python3 -m pip install -r requirements-dev.txt --dry-run`
+
+### SEC-02 · Metadados remotos podiam controlar o terminal · [P2]
+
+- **Arquivo:** `common.py`
+- **Evidência:** títulos e nomes de canal vêm da resposta da API e eram impressos diretamente; caracteres de controle e de direção bidirecional podem alterar a apresentação no terminal.
+- **Mudança:** substituir controles C0/C1 e controles de direção por espaços, usar texto de fallback quando o resultado ficar vazio e só gerar links para IDs de vídeo com 11 caracteres válidos.
+- **Aceite:** texto remoto não consegue emitir sequências de controle no terminal e um ID malformado não vira link.
+- **Estado:** implementado nesta reauditoria.
+- **Verificação estática:** `ruff check Main_api.py Main_json.py common.py` e `git diff --check`; resposta remota não foi simulada nesta rodada.
 
 ---
 
@@ -113,9 +124,17 @@ Os scripts agora compartilham configuração, tratamento de erros e exibição d
 
 - **Arquivo:** `.github/workflows/ci.yml`, `requirements-dev.txt`, `pyproject.toml`
 - **Evidência:** não havia checagem automática de sintaxe ou estilo.
-- **Mudança:** CI em Python 3.14 com `py_compile` e Ruff; dependências de desenvolvimento fixadas.
+- **Mudança:** CI em Python 3.11 e 3.14 com `py_compile` e Ruff; dependências de desenvolvimento fixadas.
 - **Aceite:** push ou pull request com erro de sintaxe ou lint falha na CI.
 - **Verificação local:** `python3 -m py_compile Main_api.py Main_json.py common.py && ruff check Main_api.py Main_json.py common.py`
+
+### DEVOPS-02 · Python 3.10 chegou ao fim do suporte · [P1]
+
+- **Arquivos:** `README.md`, `pyproject.toml`, `.github/workflows/ci.yml`
+- **Evidência:** Python 3.10 encerrou o suporte em 1º de outubro de 2026; o README ainda prometia compatibilidade e o CI só verificava Python 3.14.
+- **Mudança:** elevar o mínimo documentado e o alvo do Ruff para Python 3.11; fixar o runner em Ubuntu 24.04 e executar as verificações em Python 3.11 e 3.14.
+- **Aceite:** o requisito declarado tem suporte de segurança ativo e ambos os extremos da matriz são verificados no CI.
+- **Estado:** implementado nesta reauditoria. O CI remoto desta alteração será registrado após o push.
 
 ### IMP-01 · Boilerplate duplicado · [P3]
 
@@ -142,8 +161,8 @@ Os scripts agora compartilham configuração, tratamento de erros e exibição d
 ## 8. Ordem de execução
 
 1. **Wave 1 — P0:** `BUG-02`, `BUG-01`.
-2. **Wave 2 — P1:** `SEC-01`, `BUG-03`.
-3. **Wave 3 — P2/P3:** `DOC-01`, `DEVOPS-01`, `IMP-01`; `TEST-01` permanece pendente.
+2. **Wave 2 — P1:** `SEC-01`, `BUG-03`, `DEVOPS-02`.
+3. **Wave 3 — P2/P3:** `SEC-02`, `DOC-01`, `DEVOPS-01`, `IMP-01`; `TEST-01` permanece pendente.
 
 ---
 
@@ -166,6 +185,8 @@ O OAuth precisa de sessão local com navegador e credencial Desktop do usuário.
 - [x] `BUG-02` — validação fail-fast com instruções implementada
 - [x] `BUG-03` — erros de API/rede tratados
 - [x] `SEC-01` — dependências de runtime fixadas
+- [x] `SEC-02` — metadados remotos têm controles de terminal removidos e IDs validados
+- [x] `DEVOPS-02` — mínimo atualizado para Python 3.11, suportado pela CI em 3.11 e 3.14
 
 **Qualidade e entrega**
 - [ ] `TEST-01` — testes sem rede (pendente)
